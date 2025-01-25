@@ -8,6 +8,7 @@ import sys
 import os
 import time
 import uuid
+import imaplib
 from dotenv import load_dotenv
 
 
@@ -17,6 +18,8 @@ SMTP_SERVER = os.getenv('SMTP_SERVER')
 EMAIL_ADDRESS = os.getenv('EMAIL_ADDRESS')
 EMAIL_PASSWORD = os.getenv('EMAIL_PASSWORD')
 RECIPIENT_EMAIL = os.getenv('RECIPIENT_EMAIL')
+IMAP_SERVER = "imap.gmail.com"
+IMAP_PORT = 993
 log_file = "job_log.txt"
 sys.stdout = open(log_file, 'w')  
 
@@ -165,6 +168,25 @@ def send_email(job_listings):
             server.sendmail(EMAIL_ADDRESS, email, message.as_string())
             server.quit()
             print("Email sent successfully.")
+            try:
+                mail = imaplib.IMAP4_SSL(IMAP_SERVER, IMAP_PORT)
+                mail.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+                mail.select('"[Gmail]/Sent Mail"')
+                search_criteria = f'(TO "{email}" SUBJECT "{subject}")'
+                print(search_criteria)
+                result, data = mail.search(None, search_criteria)
+                print(result, data, mail.list())
+                if result == "OK" and data[0]:
+                    for num in data[0].split():
+                        mail.store(num, "+FLAGS", "\\Deleted")
+                    mail.expunge()
+                    print("Email deleted from Sent folder.")
+                else:
+                    print("Email not found in Sent folder.")
+                
+                mail.logout()
+            except Exception as e:
+                print(f"Error deleting email from Sent folder: {e}")
     except Exception as e:
         print(f"Error sending email: {e}")
 
