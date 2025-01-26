@@ -18,8 +18,8 @@ SMTP_SERVER = os.getenv('SMTP_SERVER')
 EMAIL_ADDRESS = os.getenv('EMAIL_ADDRESS')
 EMAIL_PASSWORD = os.getenv('EMAIL_PASSWORD')
 RECIPIENT_EMAIL = os.getenv('RECIPIENT_EMAIL')
-IMAP_SERVER = "imap.gmail.com"
-IMAP_PORT = 993
+IMAP_SERVER = os.getenv('IMAP_SERVER')
+IMAP_PORT = os.getenv('IMAP_PORT')
 log_file = "job_log.txt"
 sys.stdout = open(log_file, 'w')  
 
